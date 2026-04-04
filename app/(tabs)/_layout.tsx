@@ -1,9 +1,7 @@
 import { tabs } from "@/constants/data";
 import { colors, components } from "@/constants/theme";
-import { clsx } from "clsx";
-import { Image } from "expo-image";
+import { Image, View } from "react-native";
 import { Tabs } from "expo-router";
-import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const tabBar = components.tabBar;
@@ -15,9 +13,29 @@ const TabLayout = () => {
 
     const TabIcon = ({ icon, focused }: TabIconProps) => {
         return (
-            <View className="tabs-icon">
-                <View className={clsx('tabs-pill', focused && "tabs-active")}>
-                    <Image source={icon} resizeMode="contain" className="tabs-glyph" />
+            <View
+                style={{
+                    width: tabBar.iconFrame,
+                    height: tabBar.iconFrame,
+                    alignItems: "center",
+                    justifyContent: "center",
+                }}
+            >
+                <View
+                    style={{
+                        width: tabBar.iconFrame,
+                        height: tabBar.iconFrame,
+                        borderRadius: tabBar.iconFrame / 2,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: focused ? colors.accent : "transparent",
+                    }}
+                >
+                    <Image
+                        source={icon}
+                        resizeMode="contain"
+                        style={{ width: 24, height: 24 }}
+                    />
                 </View>
             </View>
         );
