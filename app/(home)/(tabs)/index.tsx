@@ -2,6 +2,7 @@ import "@/global.css"
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "@/constants/theme";
 import { FlatList, Image, Text, View } from "react-native";
+import { useUser } from "@clerk/expo";
 import images from "@/constants/images";
 import { HOME_BALANCE, HOME_SUBSCRIPTIONS, HOME_USER, UPCOMING_SUBSCRIPTIONS } from "@/constants/data";
 import { icons } from "@/constants/icons";
@@ -13,7 +14,7 @@ import SubscriptionCard from "@/components/SubscriptionCard";
 import { useState } from "react";
 
 export default function App() {
-
+  const { user } = useUser();
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<string | null>(null);
 
   return (
@@ -30,8 +31,8 @@ export default function App() {
               {/* Home Header */}
               <View className="home-header">
                 <View className="home-user">
-                  <Image source={images.avatar} className="home-avatar"></Image>
-                  <Text className="home-user-name">{HOME_USER.name}</Text>
+                  <Image source={user?.imageUrl ? { uri: user.imageUrl } : images.avatar} className="home-avatar"></Image>
+                  <Text className="home-user-name">{user?.firstName || user?.emailAddresses?.[0]?.emailAddress?.split('@')[0] || HOME_USER.name}</Text>
                 </View>
                 <Image source={icons.add} className="home-add-icon"></Image>
               </View>
