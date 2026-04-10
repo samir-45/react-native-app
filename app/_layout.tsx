@@ -2,6 +2,7 @@ import { ClerkProvider, useAuth } from "@clerk/expo";
 import * as SecureStore from "expo-secure-store";
 import { SplashScreen, Stack } from "expo-router";
 import { Linking, Pressable, Text, View } from "react-native";
+import { PostHogProvider } from "posthog-react-native";
 
 import '@/global.css';
 import { useFonts } from "expo-font";
@@ -110,8 +111,13 @@ export default function RootLayout() {
   }
 
   return (
-    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <InitialLayout />
-    </ClerkProvider>
+    <PostHogProvider
+      apiKey={process.env.EXPO_PUBLIC_POSTHOG_KEY!}
+      options={{ host: process.env.EXPO_PUBLIC_POSTHOG_HOST }}
+    >
+      <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+        <InitialLayout />
+      </ClerkProvider>
+    </PostHogProvider>
   );
 }

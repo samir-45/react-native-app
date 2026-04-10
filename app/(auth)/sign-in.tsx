@@ -9,6 +9,7 @@ import AuthButton from "@/components/auth/AuthButton";
 const SignIn = () => {
   const { signIn } = useSignIn();
   const router = useRouter();
+  const homeRoute = "/(home)/(tabs)";
 
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
@@ -35,8 +36,8 @@ const SignIn = () => {
       if (signIn.status === "complete") {
         await signIn.finalize({
           navigate: ({ decorateUrl }) => {
-            const url = decorateUrl("/");
-            router.replace(url as Href);
+            decorateUrl(homeRoute);
+            router.replace(homeRoute as Href);
           },
         });
       }

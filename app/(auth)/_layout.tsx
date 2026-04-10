@@ -9,7 +9,7 @@ export default function AuthLayout() {
   if (!isLoaded) return <View style={{ flex: 1, backgroundColor: colors.background }} />;
 
   if (isSignedIn) {
-    return <Redirect href="/" />;
+    return <Redirect href="/(home)/(tabs)" />;
   }
 
   return <Stack screenOptions={{ headerShown: false }} />;

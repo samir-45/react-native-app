@@ -9,6 +9,7 @@ import AuthButton from "@/components/auth/AuthButton";
 const Verify = () => {
   const { signUp } = useSignUp();
   const router = useRouter();
+  const homeRoute = "/(home)/(tabs)";
 
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,8 +33,8 @@ const Verify = () => {
       if (signUp.status === "complete") {
         await signUp.finalize({
           navigate: ({ decorateUrl }) => {
-            const url = decorateUrl("/");
-            router.replace(url as Href);
+            decorateUrl(homeRoute);
+            router.replace(homeRoute as Href);
           },
         });
       }
