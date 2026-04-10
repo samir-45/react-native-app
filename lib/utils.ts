@@ -1,5 +1,4 @@
 import dayjs from "dayjs";
-
 export const formatCurrency = (value: number, currency = "USD"): string => {
   try {
     return new Intl.NumberFormat("en-US", {
@@ -12,7 +11,6 @@ export const formatCurrency = (value: number, currency = "USD"): string => {
     return value.toFixed(2);
   }
 };
-
 export const formatSubscriptionDateTime = (value?: string): string => {
   if (!value) return "Not provided";
   const parsedDate = dayjs(value);

@@ -1,6 +1,7 @@
-import { ClerkProvider } from "@clerk/expo";
+import { ClerkProvider, useAuth } from "@clerk/expo";
 import * as SecureStore from "expo-secure-store";
 import { SplashScreen, Stack } from "expo-router";
+import { Linking, Pressable, Text, View } from "react-native";
 
 import '@/global.css';
 import { useFonts } from "expo-font";
@@ -13,10 +14,11 @@ export const unstable_settings = {
 };
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
-
-if (!publishableKey) {
-  throw new Error("Add your Clerk Publishable Key to the .env file");
-}
+const hasValidPublishableKey =
+  typeof publishableKey === "string" &&
+  /^pk_(test|live)_/.test(publishableKey) &&
+  !publishableKey.includes("REPLACE_ME") &&
+  !publishableKey.includes("REPLACE_WITH");
 
 const tokenCache = {
   async getToken(key: string) {
@@ -43,8 +45,8 @@ const tokenCache = {
   },
 };
 
-export default function RootLayout() {
-
+function InitialLayout() {
+  const { isLoaded } = useAuth();
   const [fontsLoaded] = useFonts({
     'sans-regular': require('../assets/fonts/PlusJakartaSans-Regular.ttf'),
     'sans-medium': require('../assets/fonts/PlusJakartaSans-Medium.ttf'),
@@ -55,18 +57,61 @@ export default function RootLayout() {
   })
 
   useEffect(() => {
-    if (fontsLoaded) {
+    if (fontsLoaded && isLoaded) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded])
+  }, [fontsLoaded, isLoaded])
 
-  if(!fontsLoaded) {
+  if(!fontsLoaded || !isLoaded) {
     return null
   }
 
   return (
+    <Stack screenOptions={{ headerShown: false }} />
+  );
+}
+
+function ClerkConfigScreen() {
+  return (
+    <View className="flex-1 items-center justify-center bg-neutral-950 px-6">
+      <View className="w-full max-w-md rounded-3xl bg-neutral-900 p-6">
+        <Text className="text-2xl font-['sans-bold'] text-white">
+          Clerk key missing
+        </Text>
+        <Text className="mt-3 text-base leading-6 text-neutral-300">
+          Add a real Clerk publishable key to{" "}
+          <Text className="font-['sans-semibold'] text-white">.env</Text> as{" "}
+          <Text className="font-['sans-semibold'] text-white">
+            EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY
+          </Text>
+          .
+        </Text>
+        <Text className="mt-3 text-sm leading-6 text-neutral-400">
+          The current value is still a placeholder, so authentication is
+          disabled until you replace it with a key from the Clerk dashboard.
+        </Text>
+
+        <Pressable
+          className="mt-6 rounded-2xl bg-rose-500 px-4 py-4"
+          onPress={() => Linking.openURL("https://dashboard.clerk.com/last-active?path=api-keys")}
+        >
+          <Text className="text-center font-['sans-semibold'] text-white">
+            Open Clerk API keys
+          </Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+export default function RootLayout() {
+  if (!hasValidPublishableKey) {
+    return <ClerkConfigScreen />;
+  }
+
+  return (
     <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <Stack screenOptions={{ headerShown: false }} />
+      <InitialLayout />
     </ClerkProvider>
   );
 }
