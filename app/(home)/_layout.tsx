@@ -2,6 +2,7 @@ import { useAuth } from "@clerk/expo";
 import { Redirect, Stack } from "expo-router";
 import { View } from "react-native";
 import { colors } from "@/constants/theme";
+import { SubscriptionsProvider } from "@/lib/subscriptions-context";
 
 export default function HomeLayout() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -12,5 +13,9 @@ export default function HomeLayout() {
     return <Redirect href="/(auth)/sign-in" />;
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <SubscriptionsProvider>
+      <Stack screenOptions={{ headerShown: false }} />
+    </SubscriptionsProvider>
+  );
 }

@@ -1,10 +1,10 @@
 import "@/global.css"
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "@/constants/theme";
-import { FlatList, Image, Text, View } from "react-native";
+import { FlatList, Image, Pressable, Text, View } from "react-native";
 import { useUser } from "@clerk/expo";
 import images from "@/constants/images";
-import { HOME_BALANCE, HOME_SUBSCRIPTIONS, HOME_USER, UPCOMING_SUBSCRIPTIONS } from "@/constants/data";
+import { HOME_BALANCE, HOME_USER, UPCOMING_SUBSCRIPTIONS } from "@/constants/data";
 import { icons } from "@/constants/icons";
 import { formatCurrency } from "@/lib/utils";
 import dayjs from "dayjs";
@@ -12,19 +12,24 @@ import ListHeading from "@/components/ListHeading";
 import UpcomingSubscriptionCard from "@/components/UpcomingSubscriptionCard";
 import SubscriptionCard from "@/components/SubscriptionCard";
 import { useState } from "react";
+import CreateSubscriptionModal from "@/components/CreateSubscriptionModal";
+import { useSubscriptions } from "@/lib/subscriptions-context";
 
 export default function App() {
   const { user } = useUser();
+  const { subscriptions, addSubscription } = useSubscriptions();
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<string | null>(null);
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+
+  const handleCreateSubscription = (subscription: Subscription) => {
+    addSubscription(subscription);
+    setExpandedSubscriptionId(subscription.id);
+    setIsCreateModalVisible(false);
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <View className="flex-1 bg-background p-5">
-
-
-        {/* <View className="flex-1"> */}
-
-
         <FlatList
           ListHeaderComponent={() => (
             <>
@@ -34,7 +39,9 @@ export default function App() {
                   <Image source={user?.imageUrl ? { uri: user.imageUrl } : images.avatar} className="home-avatar"></Image>
                   <Text className="home-user-name">{user?.firstName || user?.emailAddresses?.[0]?.emailAddress?.split('@')[0] || HOME_USER.name}</Text>
                 </View>
-                <Image source={icons.add} className="home-add-icon"></Image>
+                <Pressable onPress={() => setIsCreateModalVisible(true)}>
+                  <Image source={icons.add} className="home-add-icon"></Image>
+                </Pressable>
               </View>
 
               {/* Home Balance Card */}
@@ -62,7 +69,7 @@ export default function App() {
               <ListHeading title="All Subscriptions"></ListHeading>
             </>
           )}
-          data={HOME_SUBSCRIPTIONS}
+          data={subscriptions}
           renderItem={({ item }) => (
             <SubscriptionCard
               {...item}
@@ -77,8 +84,11 @@ export default function App() {
           ListEmptyComponent={<Text className="home-empty-state">No Subscriptions Yet</Text>}
           contentContainerClassName="pb-30"
         />
-        {/* </View> */}
-
+        <CreateSubscriptionModal
+          visible={isCreateModalVisible}
+          onClose={() => setIsCreateModalVisible(false)}
+          onCreateSubscription={handleCreateSubscription}
+        />
       </View>
     </SafeAreaView>
   );
